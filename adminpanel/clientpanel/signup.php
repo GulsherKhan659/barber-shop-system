@@ -1,3 +1,54 @@
+<?php
+require_once __DIR__ . '/../database/configue.php'; 
+require_once __DIR__ . '/../database/connection.php'; 
+
+$alert = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name     = trim($_POST['name'] ?? '');
+    $email    = trim($_POST['email'] ?? '');
+    $phone    = trim($_POST['number'] ?? '');
+    $password = $_POST['password'] ?? '';
+
+    $role = 'customer';
+    $shop_id = 1;
+
+    if (!$name || !$email || !$phone || !$password) {
+        $alert = '<div class="alert alert-danger">All fields are required.</div>';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $alert = '<div class="alert alert-danger">Invalid email format.</div>';
+    } else {
+        try {
+            $config = new Configue();
+            $db = new Database($config->servername, $config->database, $config->username, $config->password);
+
+            $existing = $db->select("users", "*", ["email" => $email]);
+            if (!empty($existing)) {
+                $alert = '<div class="alert alert-warning">Email already exists. Try logging in.</div>';
+            } else {
+                $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+                $inserted = $db->insert("users", [
+                    "shop_id" => $shop_id,
+                    "name" => $name,
+                    "email" => $email,
+                    "phone" => $phone,
+                    "password" => $hashedPassword,
+                    "role" => $role
+                ]);
+
+                if ($inserted) {
+                    $alert = '<div class="alert alert-success">Signup successful! <a href="login.php">Login here</a>.</div>';
+                } else {
+                    $alert = '<div class="alert alert-danger">Something went wrong. Please try again.</div>';
+                }
+            }
+        } catch (Exception $e) {
+            $alert = '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,26 +96,28 @@
 <body>
 
   <div class="signup-container">
-    <div class="w-100 h-100 d-flex justify-content-center align-items-center mb-4">
+    <div class="w-100 d-flex justify-content-center align-items-center mb-4">
       <img width="75%" src="../img/logo.png" alt="Logo" />
     </div>
 
-    <form>
+    <?= $alert ?>
+
+    <form method="POST" action="">
       <div class="mb-3">
         <label for="name" class="form-label">Full Name</label>
-        <input type="text" class="form-control" id="name" placeholder="Enter your full name">
+        <input type="text" class="form-control" id="name" name="name" required>
       </div>
       <div class="mb-3">
         <label for="email" class="form-label">Email Address</label>
-        <input type="email" class="form-control" id="email" placeholder="Enter email">
+        <input type="email" class="form-control" id="email" name="email" required>
       </div>
       <div class="mb-3">
         <label for="number" class="form-label">Phone Number</label>
-        <input type="tel" class="form-control" id="number" placeholder="Enter phone number">
+        <input type="tel" class="form-control" id="number" name="number" required>
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" placeholder="Create a password">
+        <input type="password" class="form-control" id="password" name="password" required>
       </div>
 
       <div class="d-grid mb-3">
