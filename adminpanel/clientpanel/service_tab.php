@@ -30,12 +30,12 @@ $services = $db->select('services');
 }
 .bg-warning {
   background: #f7fafd !important;
-  color: #0077b6 !important;
+  color: #000 !important;
   font-size: 1.65rem;
-  font-weight: 700;
+  /* font-weight: 700; */
   letter-spacing: 1px;
   border-radius: 14px 14px 0 0;
-  padding: 26px 40px 14px 40px;
+  padding: 13px 20px 7px 20px;
   margin-bottom: 0;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
@@ -60,9 +60,9 @@ $services = $db->select('services');
   transition: all 0.18s;
 }
 .nav-tabs .nav-link.active, .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
-  color: #0077b6 !important;
+  color: #000 !important;
   background: transparent !important;
-  border-bottom: 3px solid #2ecc71 !important;
+  border-bottom: 3px solid rgb(40, 43, 41) !important;
 }
 .search-input {
   background: #f7fafd;
@@ -96,7 +96,7 @@ $services = $db->select('services');
 }
 .service-card.selected {
   background: #e8f5e9;
-  border-color: #2ecc71;
+  border-color:rgb(58, 59, 59);
 }
 .service-title {
   font-size: 1.08rem;
@@ -104,7 +104,7 @@ $services = $db->select('services');
   color: #222;
 }
 .service-price {
-  color: #2ecc71;
+  color:rgb(33, 36, 34);
   font-weight: 700;
   font-size: 1rem;
   margin-left: 12px;
@@ -120,7 +120,7 @@ $services = $db->select('services');
   align-items: baseline;
 }
 .btn-choose {
-  background: #2ecc71 !important;
+  background:rgb(32, 34, 33) !important;
   color: #fff !important;
   font-weight: 700;
   border-radius: 8px;
@@ -132,7 +132,7 @@ $services = $db->select('services');
   transition: background 0.15s;
 }
 .btn-choose:hover {
-  background: #27ae60 !important;
+  background:rgb(36, 41, 38) !important;
 }
 .footer-text {
   color: #8fa1b4 !important;
@@ -178,8 +178,12 @@ $services = $db->select('services');
   </div> -->
 
   <div class="container">
-    <div class="offset-md-3 col-md-6 col-12 offset-0">
-      <div class="h2 bg-warning">RAREBARBER </div>
+    <div class="offset-md-3 col-md-6 col-12 offset-0 ">
+      <div class="d-flex justify-content-center w-100 pt-4 pb-2">
+        <img src="assets/shop-logo.png" style="width: 25%;" alt="" srcset="">
+        
+      </div>
+      <div class="h6 bg-warning text-center">RAREBARBER </div>
     </div>
      <ul class="nav nav-tabs mb-3" id="serviceTabs" role="tablist">
       <li class="nav-item" role="presentation">
