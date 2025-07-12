@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'role' => $user['role'],
                         'shop_id' => $user['shop_id']
                     ];
-                    header("Location: dashboard.php"); 
+                    header("Location: service_tab.php"); 
                     exit;
                 } else {
                     $alert = '<div class="alert alert-danger">Incorrect password.</div>';
