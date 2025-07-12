@@ -120,7 +120,7 @@ $services = $db->select('services');
   align-items: baseline;
 }
 .btn-choose {
-  background:rgb(32, 34, 33) !important;
+  background:#000 !important;
   color: #fff !important;
   font-weight: 700;
   border-radius: 8px;
@@ -132,7 +132,8 @@ $services = $db->select('services');
   transition: background 0.15s;
 }
 .btn-choose:hover {
-  background:rgb(36, 41, 38) !important;
+  
+  background:rgb(57, 59, 58) !important;
 }
 .footer-text {
   color: #8fa1b4 !important;

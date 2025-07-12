@@ -100,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   box-shadow: 0 0 0 2px rgba(46,204,113,0.13);
 }
 .btn-signup {
-  background: #2ecc71 !important;
+  
+  background:#000 !important;
   color: #fff !important;
   font-weight: 700;
   font-size: 1.08rem;
@@ -111,7 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   box-shadow: 0 1px 10px rgba(44,204,113,0.04);
 }
 .btn-signup:hover, .btn-signup:focus {
-  background: #27ae60 !important;
+ 
+  background:rgb(57, 59, 58) !important;
 }
 a {
   color: #0077b6;
