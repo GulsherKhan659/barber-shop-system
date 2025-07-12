@@ -16,89 +16,172 @@ $services = $db->select('services');
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background-color: #121212;
-      color: #fff;
-    }
-    .header {
-      background-color: #2196f3;
-      color: #fff;
-      padding: 15px 0;
-      text-align: center;
-    }
-    .nav-tabs .nav-link {
-      background-color: #1e1e1e;
-      color: #bbb;
-      border: 1px solid #333;
-    }
-    .nav-tabs .nav-link.active {
-      background-color: #333;
-      color: #fff;
-      border-color: #444 #444 #222;
-    }
-    .search-input {
-      background-color: #1e1e1e;
-      border: 1px solid #444;
-      color: #fff;
-    }
-    .search-input::placeholder {
-      color: #aaa;
-    }
-    .service-card {
-      background-color: #1e1e1e;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-    .service-card.selected {
-      background-color: #0d6efd;
-      border-color: #0a58ca;
-    }
-    .service-title {
-      font-size: 1rem;
-      font-weight: bold;
-    }
-    .service-price {
-      color: rgb(18, 124, 223);
-    }
-    .btn-choose {
-      background-color: rgb(18, 124, 223);
-      color: white;
-      font-weight: bold;
-    }
-    .footer-text {
-      font-size: 14px;
-      color: #aaa;
-    }
-    .btn-unselect {
-      background: #dc3545 !important;
-      color: #fff !important;
-      border: none;
-      border-radius: 50%;
-      font-size: 1.2rem;
-      width: 32px;
-      height: 32px;
-      line-height: 1;
-      text-align: center;
-      padding: 0;
-      margin-left: 10px;
-      transition: background 0.2s;
-    }
-    .btn-unselect:hover {
-      background: #b02a37 !important;
-    }
+  background: #f2f4f7 url('https://www.transparenttextures.com/patterns/symphony.png');
+  color: #2d3748;
+}
+.container {
+  max-width: 740px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.07);
+  padding-bottom: 32px;
+  border: 1px solid #e2e8f0;
+}
+.bg-warning {
+  background: #f7fafd !important;
+  color: #0077b6 !important;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 14px 14px 0 0;
+  padding: 26px 40px 14px 40px;
+  margin-bottom: 0;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+.nav-tabs {
+  background: #f7fafd;
+  border: none;
+  padding: 0 40px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 0 !important;
+}
+.nav-tabs .nav-link {
+  color: #5b6770;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 12px 16px 12px 0;
+  margin-right: 22px;
+  border-bottom: 3px solid transparent;
+  transition: all 0.18s;
+}
+.nav-tabs .nav-link.active, .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+  color: #0077b6 !important;
+  background: transparent !important;
+  border-bottom: 3px solid #2ecc71 !important;
+}
+.search-input {
+  background: #f7fafd;
+  border: 1px solid #e2e8f0;
+  color: #333 !important;
+  border-radius: 8px;
+  margin: 20px 0 18px 0;
+  font-size: 1rem;
+  padding: 10px 16px;
+}
+.search-input::placeholder {
+  color: #9eabbc !important;
+}
+.tab-content {
+  margin-top: 0;
+}
+.service-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 18px 28px 10px 28px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  box-shadow: 0 1px 6px rgba(34,54,80,0.03);
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.service-card.selected {
+  background: #e8f5e9;
+  border-color: #2ecc71;
+}
+.service-title {
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: #222;
+}
+.service-price {
+  color: #2ecc71;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+.service-card small.text-muted {
+  color: #607080 !important;
+  font-size: 0.98rem;
+  margin-top: 3px;
+  display: block;
+}
+.d-flex.justify-content-between {
+  align-items: baseline;
+}
+.btn-choose {
+  background: #2ecc71 !important;
+  color: #fff !important;
+  font-weight: 700;
+  border-radius: 8px;
+  font-size: 1.13rem;
+  padding: 13px 0;
+  margin: 34px 0 0 0;
+  box-shadow: 0 1px 12px rgba(34,54,80,0.08);
+  border: none !important;
+  transition: background 0.15s;
+}
+.btn-choose:hover {
+  background: #27ae60 !important;
+}
+.footer-text {
+  color: #8fa1b4 !important;
+  font-size: 1.04rem !important;
+  margin-top: 26px;
+}
+.btn-unselect {
+  background: #dc3545 !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  line-height: 1;
+  text-align: center;
+  padding: 0;
+  margin-left: 10px;
+  transition: background 0.2s;
+  margin-top: -4px;
+}
+.btn-unselect:hover {
+  background: #b02a37 !important;
+}
+@media (max-width: 800px) {
+  .container {
+    padding: 0;
+    border-radius: 0;
+  }
+  .bg-warning, .nav-tabs, .service-card {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+}
+
   </style>
 </head>
 <body>
 
   <!-- Header -->
-  <div class="header">
+  <!-- <div class="header">
     <h5>The RareBarber</h5>
-  </div>
+  </div> -->
 
-  <div class="container mt-4">
-    <ul class="nav nav-tabs mb-3" id="serviceTabs" role="tablist">
+  <div class="container">
+    <div class="offset-md-3 col-md-6 col-12 offset-0">
+      <div class="h2 bg-warning">RAREBARBER </div>
+    </div>
+     <ul class="nav nav-tabs mb-3" id="serviceTabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">All Services</button>
       </li>
@@ -158,13 +241,16 @@ $services = $db->select('services');
     </div>
 
     <div class="d-grid mt-4">
-      <a href="client-calender.php" class="btn btn-choose">Choose staff & time</a>
+      <a href="client_calender.php" class="btn btn-choose">Choose staff & time</a>
     </div>
 
     <div class="text-center mt-4 footer-text">
       <p>Terms & conditions | Feedback</p>
     </div>
+
   </div>
+
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
