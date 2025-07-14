@@ -6,6 +6,13 @@
 class Database {
     private $pdo;
 
+    public function query($sql, $params = []) {
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
     public function __construct($host, $dbname, $username, $password) {
         $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
         $this->pdo = new PDO($dsn, $username, $password);

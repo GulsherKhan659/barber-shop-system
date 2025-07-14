@@ -4,7 +4,7 @@ include("../database/connection.php");
 
 $config = new Configue();
 $db = new Database($config->servername, $config->database, $config->username, $config->password);
-$services = $db->select('services');
+$services = $db->select("services", "*", ["is_active" => 1]);
 ?>
 
 <!DOCTYPE html>
@@ -158,7 +158,19 @@ $services = $db->select('services');
 .btn-unselect:hover {
   background: #b02a37 !important;
 }
+
+.select-price{
+  width: 220px;
+  position: fixed;
+   top:100px;
+    right:0px
+}
 @media (max-width: 800px) {
+  .select-price{
+  position: fixed;
+   top:25%;
+    right:0px
+}
   .container {
     padding: 0;
     border-radius: 0;
@@ -170,13 +182,10 @@ $services = $db->select('services');
 }
 
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
-  <!-- Header -->
-  <!-- <div class="header">
-    <h5>The RareBarber</h5>
-  </div> -->
 
   <div class="container">
     <div class="offset-md-3 col-md-6 col-12 offset-0 ">
@@ -246,8 +255,12 @@ $services = $db->select('services');
     </div>
 
     <div class="d-grid mt-4">
-      <a href="client_calender.php" class="btn btn-choose">Choose staff & time</a>
-    </div>
+  <form id="bookingForm" method="post" action="client_calender.php">
+    <input type="hidden" name="selected_services" id="selected_services" value="">
+    <button type="submit" class="btn btn-choose form-control">Choose staff & time</button>
+  </form>
+</div>
+
 
     <div class="text-center mt-4 footer-text">
       <p>Terms & conditions | Feedback</p>
@@ -256,50 +269,71 @@ $services = $db->select('services');
   </div>
 
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    document.getElementById("bookingForm").addEventListener("submit", function(e) {
+  const dataArr = Array.from(selectedServices.entries()).map(([id, obj]) => ({
+    id,
+    ...obj
+  }));
+  document.getElementById("selected_services").value = JSON.stringify(dataArr);
+});
     const selectedServices = new Map();
 
-    function updateSelections() {
-      const container = document.getElementById("selectedServices");
-      container.innerHTML = '';
+   function updateSelections() {
+  const container = document.getElementById("selectedServices");
+  container.innerHTML = '';
 
-      if (selectedServices.size === 0) {
-        container.innerHTML = "<p class='text-muted'>No services selected yet.</p>";
-      }
+  if (selectedServices.size === 0) {
+    container.innerHTML = "<p class='text-muted'>No services selected yet.</p>";
+    document.getElementById("selectionCounter").textContent = 0;
+    return;
+  }
 
-      selectedServices.forEach((service, id) => {
-        const div = document.createElement("div");
-        div.className = "service-card";
-        div.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <span class="service-title">${service.name}</span>
-              <span class="service-price">$${service.price} · ${service.duration} min</span><br>
+  selectedServices.forEach((service, id) => {
+    const div = document.createElement("div");
+    div.className = "service-card selected"; 
+    div.setAttribute("data-id", id);
+    div.innerHTML = `
+
+          <div class="d-flex justify-content-between">
+                <span class="service-title">${service.name}</span>
+                <span class="service-price">$ ${service.price} · ${service.duration} min</span>
+              </div>
               <small class="text-muted">${service.description}</small>
-            </div>
-            <button class="btn btn-unselect" data-id="${id}" title="Unselect">×</button>
-          </div>
-        `;
-        container.appendChild(div);
-      });
+     
 
-      document.getElementById("selectionCounter").textContent = selectedServices.size;
+      `;
+    
+      
+    div.addEventListener("click", function(e) {
+      if (!e.target.classList.contains("btn-unselect")) {
+        selectedServices.delete(id);
+        const allCard = document.querySelector(`#all .service-card[data-id="${id}"]`);
+        if (allCard) allCard.classList.remove("selected");
+        updateSelections();
+      }
+    });
+    container.appendChild(div);
+  });
 
-      // Add event listeners to all "Unselect" buttons
-      container.querySelectorAll(".btn-unselect").forEach(btn => {
-        btn.addEventListener("click", function(e) {
-          e.stopPropagation(); // Prevent triggering card click
-          const id = btn.getAttribute("data-id");
-          selectedServices.delete(id);
-          // Remove "selected" style from card in All Services tab if present
-          const allCard = document.querySelector(`#all .service-card[data-id="${id}"]`);
-          if (allCard) allCard.classList.remove("selected");
-          updateSelections();
-        });
-      });
-    }
+  document.getElementById("selectionCounter").textContent = selectedServices.size;
+
+  // Add event listeners to all "Unselect" buttons
+  container.querySelectorAll(".btn-unselect").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation(); // Prevent triggering card click
+      const id = btn.getAttribute("data-id");
+      selectedServices.delete(id);
+      // Remove "selected" style from card in All Services tab if present
+      const allCard = document.querySelector(`#all .service-card[data-id="${id}"]`);
+      if (allCard) allCard.classList.remove("selected");
+      updateSelections();
+    });
+  });
+}
+
 
     document.addEventListener("DOMContentLoaded", function () {
       const serviceCards = document.querySelectorAll("#all .service-card");

@@ -32,6 +32,15 @@ checkSession();
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <!-- jQuery + jQuery UI + MultiDatesPicker (in this order) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/multidatespicker@1.6.6/jquery-ui.multidatespicker.js"></script>
+
+<style>
+.ui-datepicker { z-index: 1055 !important; }
+</style>
 
 </head>
 <body id="page-top">
