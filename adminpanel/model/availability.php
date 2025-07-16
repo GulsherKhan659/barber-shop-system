@@ -14,20 +14,20 @@ class Availibity extends Database {
             $where = ['staff_id' => $staff_id, 'weekday' => $weekday];
             return $this->updateAvalibity($data, $where);
         } else {
-            return $this->insert('availability', $data);
+            return $this->insert('staff_available_slots', $data);
         }
     }
 
     public function updateAvalibity($data, $where) {
-        return $this->update('availability', $data, $where);
+        return $this->update('staff_available_slots', $data, $where);
     }
 
     public function deleteAvalibity($where) {
-        return $this->delete('availability', $where);
+        return $this->delete('staff_available_slots', $where);
     }
 
     public function getAvalibities($where = []) {
-        return $this->select('availability', '*', $where);
+        return $this->select('staff_available_slots', '*', $where);
     }
 }
 
