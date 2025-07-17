@@ -321,7 +321,7 @@ function generateCalendar($month, $year)
           //   dynamicHTML += buildSlots(slot.startTime + ':00', slot.endTime + ':00', selectedServiceId);
           // });
           matchedSlot.value.forEach((slot, idx) => {
-            const selectedServiceId = document.querySelector('.staff-select')?.getAttribute('data-service-id'); // Or any way you get the correct one
+            const selectedServiceId = document.querySelector('.staff-select')?.getAttribute('data-service-id'); 
             dynamicHTML += `<div class="table-secondary text-center fw-bold">Available Slot ${idx + 1}: ${slot.startTime} - ${slot.endTime}</div>`;
             dynamicHTML += buildSlots(slot.startTime + ':00', slot.endTime + ':00', selectedServiceId);
           });
@@ -344,17 +344,9 @@ function generateCalendar($month, $year)
             btn.classList.add('btn-dark');
             selectedTime = btn.getAttribute('data-time');
 
-            // if (selectedDate && selectedTime) {
-            //   confirmWrapper.style.display = 'block';
-            // }
           });
         });
       }
-
-      // confirmBtn.addEventListener('click', () => {
-      //   confirmationMessage.innerHTML = `<strong>Date:</strong> ${selectedDate} &nbsp; <strong>Time:</strong> ${selectedTime}`;
-      //   confirmationMessage.classList.remove('d-none');
-      // });
     });
 
     function logSelectedStaff(selectElement) {
@@ -506,7 +498,6 @@ function generateCalendar($month, $year)
       document.getElementById("confirmWrapper").style.display = "block";
     }
 
-    // Book button opens modal
     const openBookModal = () => {
       if (!selectedBookingData) {
         alert("Please select time and staff first.");
@@ -527,7 +518,6 @@ function generateCalendar($month, $year)
     }
 
 
-    // Final confirm button inside modal
     const confirmBookingButton = () => {
       if (!selectedBookingData) {
         showErrorToast("❌ Failed no booking data available");
@@ -543,7 +533,7 @@ function generateCalendar($month, $year)
       .then(response => {
         if (response.status) {
           showErrorToast("✅ Booking saved successfully!");
-          location.reload(); // Or update UI
+          location.reload(); 
         }else{
            showErrorToast("❌ Failed: " + response.message);
         }
