@@ -16,14 +16,14 @@ try {
     $now = date("Y-m-d H:i:s");
     $booking = [
         "shop_id" => 1,
-        "staff_id" => $data['staff']['id'],
+        "staff_id" => $data['staff']['staff_id'],
         "appointment_date" => $data['appointment_date'],
         "appointment_time" => $data['appointment_time'],
         "total_price" => $data['service']['price'],
         "total_duration" => $data['service']['duration'],
         "status" => "pending",
         "payment_status" => "unpaid",
-        "notes" => $data['service']['name'] . " with " . $data['staff']['name'] . " (" . $data['service']['duration'] . " mins)",
+        "notes" => $data['service']['name'] . " with " . $data['staff']['staff_name'] . " (" . $data['service']['duration'] . " mins)",
         "created_at" => $now,
         "service_id" => $data['service']['id']
     ];

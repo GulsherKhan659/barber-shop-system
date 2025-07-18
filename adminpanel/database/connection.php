@@ -3,23 +3,27 @@
 <?php
 
 // $dbObject=new Database($servername,$database,$username,$password);
-class Database {
+class Database
+{
     private $pdo;
 
-    public function query($sql, $params = []) {
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute($params);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+    public function query($sql, $params = [])
+    {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 
-    public function __construct($host, $dbname, $username, $password) {
+    public function __construct($host, $dbname, $username, $password)
+    {
         $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
         $this->pdo = new PDO($dsn, $username, $password);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    public function insert($table, $data) {
+    public function insert($table, $data)
+    {
         $columns = implode(", ", array_keys($data));
         $placeholders = ":" . implode(", :", array_keys($data));
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
@@ -27,7 +31,8 @@ class Database {
         return $stmt->execute($data);
     }
 
-    public function update($table, $data, $where) {
+    public function update($table, $data, $where)
+    {
         $set = "";
         foreach ($data as $key => $value) {
             $set .= "$key = :$key, ";
@@ -50,7 +55,8 @@ class Database {
         return $stmt->execute($data);
     }
 
-    public function delete($table, $where) {
+    public function delete($table, $where)
+    {
         $whereClause = "";
         foreach ($where as $key => $value) {
             $whereClause .= "$key = :$key AND ";
@@ -62,27 +68,43 @@ class Database {
         return $stmt->execute($where);
     }
 
-    public function select($table, $columns = '*', $where = []) {
-        $whereClause = "";
+    public function select($table, $columns = '*', $where = [])
+    {
         $params = [];
 
-        if (!empty($where)) {
-            $whereClause = " WHERE ";
-            foreach ($where as $key => $value) {
-                $whereClause .= "$key = :$key AND ";
-                $params[$key] = $value;
+        if (is_string($where)) {
+            $sql = "SELECT $columns FROM $table WHERE $where";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+        } else {
+            $whereClause = "";
+            if (!empty($where)) {
+                $whereClause = " WHERE ";
+                foreach ($where as $key => $value) {
+                    $whereClause .= "$key = :$key AND ";
+                    $params[$key] = $value;
+                }
+                $whereClause = rtrim($whereClause, " AND ");
             }
-            $whereClause = rtrim($whereClause, " AND ");
+
+            $sql = "SELECT $columns FROM $table$whereClause";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
         }
 
-        $sql = "SELECT $columns FROM $table$whereClause";
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function selectJoin($sql, $params = [])
+    {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function lastInsertId() {
-    return $this->pdo->lastInsertId();
-}
 
-}
 
+    public function lastInsertId()
+    {
+        return $this->pdo->lastInsertId();
+    }
+}

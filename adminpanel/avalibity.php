@@ -7,7 +7,8 @@ $db = new Database('localhost', 'barberbookingsystem', 'root', '');
 // Fetch staff list
 $staffList = $db->select(
   "staff s JOIN users u ON s.user_id = u.id",
-  "s.id as staff_id, u.name as staff_name"
+  "s.id as staff_id, u.name as staff_name",
+  "u.role = 'staff'"
 );
 
 // Fetch all available slots

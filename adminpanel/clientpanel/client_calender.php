@@ -7,8 +7,12 @@ require_once __DIR__ . '/../database/connection.php';
 $config = new Configue();
 $db = new Database($config->servername, $config->database, $config->username, $config->password);
 
-$staff = $db->select('users', '*', ['role' => 'staff']);
-
+// $staff = $db->select('users', '*', ['role' => 'staff']);
+$staff = $db->select(
+  "staff s JOIN users u ON s.user_id = u.id",
+  "s.id as staff_id, u.name as staff_name",
+  "u.role = 'staff'"
+);
 ?>
 
 
@@ -121,7 +125,7 @@ function generateCalendar($month, $year)
                     <option value="">Please Select</option>
                     <?php
                     foreach ($staff as $user) {
-                      echo "<option value='" . htmlspecialchars($user['id']) . "'>" . htmlspecialchars($user['name']) . "</option>";
+                      echo "<option value='" . htmlspecialchars($user['staff_id']) . "'>" . htmlspecialchars($user['staff_name']) . "</option>";
                     }
                     ?>
                   </select>
@@ -146,7 +150,7 @@ function generateCalendar($month, $year)
                     <option value="">Please Select</option>
                     <?php
                     foreach ($staff as $user) {
-                      echo "<option value='" . htmlspecialchars($user['id']) . "'>" . htmlspecialchars($user['name']) . "</option>";
+                      echo "<option value='" . htmlspecialchars($user['staff_id']) . "'>" . htmlspecialchars($user['staff_name']) . "</option>";
                     }
                     ?>
                   </select>
@@ -477,7 +481,7 @@ function generateCalendar($month, $year)
       const staffId = selectEl ? selectEl.value : null;
 
       const serviceObj = allServices.find(s => String(s.id) === String(serviceId));
-      const staffObj = allStaff.find(s => String(s.id) === String(staffId));
+      const staffObj = allStaff.find(s => String(s.staff_id) === String(staffId));
 
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -506,7 +510,7 @@ function generateCalendar($month, $year)
 
       const summaryHtml = `
       <p><strong>Service:</strong> ${selectedBookingData.service.name}</p>
-      <p><strong>Staff:</strong> ${selectedBookingData.staff.name}</p>
+      <p><strong>Staff:</strong> ${selectedBookingData.staff.staff_name}</p>
       <p><strong>Date:</strong> ${selectedBookingData.appointment_date}</p>
       <p><strong>Time:</strong> ${selectedBookingData.appointment_time}</p>
       <p><strong>Duration:</strong> ${selectedBookingData.service.duration} mins</p>
