@@ -208,7 +208,7 @@ function generateCalendar($month, $year)
       </div>
     </div>
 
-    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <!-- <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -223,7 +223,42 @@ function generateCalendar($month, $year)
           </div>
         </div>
       </div>
+    </div> -->
+      <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="bookingModalLabel">Confirm Your Booking</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Booking Summary (filled dynamically with JS) -->
+        <div id="bookingSummary"></div>
+
+        <!-- Payment Method Selection -->
+        <div class="mt-3">
+          <label class="form-label"><strong>Choose Payment Method:</strong></label><br>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="payment_method" id="cashOption" value="cash" checked>
+            <label class="form-check-label" for="cashOption">Cash on Shop</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="payment_method" id="cardOption" value="card" disabled />
+            <label class="form-check-label" for="cardOption">Pay by Card</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="finalConfirmBtn" onclick="confirmBookingButton()">Confirm Booking</button>
+      </div>
+
     </div>
+  </div>
+</div>
 
 
   </div>
@@ -361,8 +396,8 @@ function generateCalendar($month, $year)
 
       if (staffId && serviceId) {
         try {
-          const availabilityURL = `/barberRepo/barber-shop-system/adminpanel/bootstrap/availability/get_availability.php?staff_id=${staffId}`;
-          const bookingURL = `/barberRepo/barber-shop-system/adminpanel/bootstrap/booking/get_bookings.php?staff_id=${staffId}`;
+          const availabilityURL = `/barber-shop-system/adminpanel/bootstrap/availability/get_availability.php?staff_id=${staffId}`;
+          const bookingURL = `/barber-shop-system/adminpanel/bootstrap/booking/get_bookings.php?staff_id=${staffId}`;
           fetch(availabilityURL)
             .then(res => res.json())
             .then(data => {
@@ -521,12 +556,19 @@ function generateCalendar($month, $year)
       modal.show();
     }
 
-
     const confirmBookingButton = () => {
       if (!selectedBookingData) {
         showErrorToast("❌ Failed no booking data available");
+        return;
       }
-      fetch("/barberRepo/barber-shop-system/adminpanel/bootstrap/booking/save_booking.php", {
+
+      const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+
+      selectedBookingData.payment_method = paymentMethod;
+
+      console.log("Selected Booking Data:", selectedBookingData);
+
+      fetch("/barber-shop-system/adminpanel/bootstrap/booking/save_booking.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -536,17 +578,17 @@ function generateCalendar($month, $year)
       .then(res => res.json())
       .then(response => {
         if (response.status) {
-          showErrorToast("✅ Booking saved successfully!");
-          location.reload(); 
-        }else{
-           showErrorToast("❌ Failed: " + response.message);
+          showSuccessToast("✅ Booking saved successfully!");
+          window.location.href = '/barber-shop-system/adminpanel/clientpanel/service_tab.php';
+        } else {
+          showErrorToast("❌ Failed: " + response.message);
         }
       })
       .catch(error => {
         console.log(error)
         showErrorToast("❌ Failed: " + error);
       });
-    }
+    };
 
   </script>
   <script>

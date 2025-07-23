@@ -1,10 +1,33 @@
 <?php
+
+session_start();
+
+if (!isset($_SESSION['user'])) {
+  header("Location: login.php");
+  exit;
+}
+
 include("../database/configue.php");
 include("../database/connection.php");
 
+$userId = $_SESSION['user']['id'];
+
 $config = new Configue();
 $db = new Database($config->servername, $config->database, $config->username, $config->password);
+
 $services = $db->select("services", "*", ["is_active" => 1]);
+
+$sql = "
+SELECT b.*, s.name AS service_name, s.price, s.duration_minutes AS duration_minutes, u.name AS staff_name
+FROM bookings b
+JOIN services s ON b.service_id = s.id
+JOIN staff st ON b.staff_id = st.id
+JOIN users u ON st.user_id = u.id
+WHERE b.user_id = :uid and b.status = 'pending'
+ORDER BY b.id DESC
+";
+$recentBookings = $db->selectJoin($sql, ["uid" => $userId]);
+
 ?>
 
 <!DOCTYPE html>
@@ -206,6 +229,18 @@ $services = $db->select("services", "*", ["is_active" => 1]);
         padding-left: 15px !important;
         padding-right: 15px !important;
       }
+      .card {
+        border-radius: 8px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+      }
+      .card h5 {
+        font-weight: 600;
+      }
+      .card strong {
+        font-size: 16px;
+      }
+
     }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -258,22 +293,43 @@ $services = $db->select("services", "*", ["is_active" => 1]);
       </div>
 
       <!-- Popular -->
-      <div class="tab-pane fade" id="popular" role="tabpanel">
-        <div class="service-card">
-          <div class="d-flex justify-content-between">
-            <span class="service-title">Coming Soon</span>
-          </div>
-        </div>
-      </div>
-
       <!-- Recent -->
-      <div class="tab-pane fade" id="recent" role="tabpanel">
-        <div class="service-card">
-          <div class="d-flex justify-content-between">
-            Coming Soon
+<div class="tab-pane fade" id="recent" role="tabpanel">
+  <?php if (!empty($recentBookings)): ?>
+    <?php foreach ($recentBookings as $booking): ?>
+      <div class="card mb-3 shadow-sm p-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="mb-1"><?= htmlspecialchars($booking['service_name']) ?></h5>
+            <p class="mb-1 text-muted" style="font-size: 14px;">
+              Staff: <?= htmlspecialchars($booking['staff_name']) ?>
+            </p>
+            <p class="mb-1 text-muted" style="font-size: 14px;">
+              Status: <?= htmlspecialchars(ucfirst($booking['status'])) ?>
+            </p>
+            <small class="text-muted">
+              Booked on <?= date('M d, Y h:i A', strtotime($booking['created_at'])) ?>
+            </small>
+          </div>
+          <div class="text-end">
+            <p class="mb-2">
+              <strong>$<?= htmlspecialchars($booking['price']) ?> · <?= htmlspecialchars($booking['duration_minutes']) ?> min</strong>
+            </p>
+            <form method="POST" action="/barber-shop-system/adminpanel/bootstrap/booking/cancel_booking.php">
+              <input type="hidden" name="booking_id" value="<?= $booking['id'] ?>">
+              <button type="submit" class="btn btn-sm btn-danger">Cancel Booking</button>
+            </form>
           </div>
         </div>
       </div>
+    <?php endforeach; ?>
+  <?php else: ?>
+    <p class="text-center">You have not booked any services yet.</p>
+  <?php endif; ?>
+</div>
+
+
+
 
       <!-- Selections -->
       <div class="tab-pane fade" id="selection" role="tabpanel">

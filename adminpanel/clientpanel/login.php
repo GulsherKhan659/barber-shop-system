@@ -1,4 +1,105 @@
 <?php
+// require_once __DIR__ . '/../database/configue.php';
+// require_once __DIR__ . '/../database/connection.php';
+
+// $alert = '';
+
+// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//   $config = new Configue();
+//   $db = new Database($config->servername, $config->database, $config->username, $config->password);
+
+//   // Guest Login
+//   if (isset($_POST['guest_submit'])) {
+//     $guestEmail = trim($_POST['guest_email'] ?? '');
+//     $guestPhone = trim($_POST['guest_phone'] ?? '');
+
+//     if (!$guestEmail || !$guestPhone) {
+//       $alert = '<div class="alert alert-danger">Guest email and phone are required.</div>';
+//     } else {
+//       try {
+//         // Check if guest email already exists
+//         $existingUser = $db->select("users", "*", ["email" => $guestEmail]);
+
+//         if (!$existingUser) {
+//           // Insert new guest user
+//           $db->insert("users", [
+//             "email" => $guestEmail,
+//             "phone" => $guestPhone,
+//             "role" => "guest",
+//             "name" => "Guest User"
+//           ]);
+
+//           $userId = $db->lastInsertId(); // if available
+//         } else {
+//           $userId = $existingUser[0]['id'];
+//         }
+
+//         session_start();
+//         $_SESSION['user'] = [
+//           'id' => $userId,
+//           'name' => 'Guest User',
+//           'email' => $guestEmail,
+//           'role' => 'guest',
+//           'shop_id' => 1
+//         ];
+//         header("Location: service_tab.php");
+//         exit;
+//       } catch (Exception $e) {
+//         $alert = '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
+//       }
+//     }
+//   }
+//   // Normal Login
+//   else {
+//     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//       $email = trim($_POST['email'] ?? '');
+//       $password = $_POST['password'] ?? '';
+
+//       if (!$email || !$password) {
+//         $alert = '<div class="alert alert-danger">Email and password are required.</div>';
+//       } else {
+//         try {
+//           $config = new Configue();
+//           $db = new Database($config->servername, $config->database, $config->username, $config->password);
+
+//           $user = $db->select("users", "*", ["email" => $email]);
+
+//           if (empty($user)) {
+//             $alert = '<div class="alert alert-danger">No user found with this email.</div>';
+//           } else {
+//             $user = $user[0];
+
+//             if (password_verify($password, $user['password'])) {
+//               session_start();
+//               $_SESSION['user'] = [
+//                 'id' => $user['id'],
+//                 'name' => $user['name'],
+//                 'email' => $user['email'],
+//                 'role' => $user['role'],
+//                 'shop_id' => $user['shop_id']
+//               ];
+//               header("Location: service_tab.php");
+//               exit;
+//             } else {
+//               $alert = '<div class="alert alert-danger">Incorrect password.</div>';
+//             }
+//           }
+//         } catch (Exception $e) {
+//           $alert = '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
+//         }
+//       }
+//     }
+//   }
+// }
+
+session_start();
+
+// Redirect to service_tab.php if already logged in
+if (isset($_SESSION['user'])) {
+  header("Location: service_tab.php");
+  exit;
+}
+
 require_once __DIR__ . '/../database/configue.php';
 require_once __DIR__ . '/../database/connection.php';
 
@@ -17,24 +118,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $alert = '<div class="alert alert-danger">Guest email and phone are required.</div>';
     } else {
       try {
-        // Check if guest email already exists
         $existingUser = $db->select("users", "*", ["email" => $guestEmail]);
 
         if (!$existingUser) {
-          // Insert new guest user
           $db->insert("users", [
             "email" => $guestEmail,
             "phone" => $guestPhone,
             "role" => "guest",
-            "name" => "Guest User"
+            "name" => "Guest User",
+            "shop_id" => 1
           ]);
-
-          $userId = $db->lastInsertId(); // if available
+          $userId = $db->lastInsertId();
         } else {
           $userId = $existingUser[0]['id'];
         }
 
-        session_start();
         $_SESSION['user'] = [
           'id' => $userId,
           'name' => 'Guest User',
@@ -42,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           'role' => 'guest',
           'shop_id' => 1
         ];
+
         header("Location: service_tab.php");
         exit;
       } catch (Exception $e) {
@@ -49,50 +148,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
   }
-  // Normal Login
+
+  // Customer Login
   else {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      $email = trim($_POST['email'] ?? '');
-      $password = $_POST['password'] ?? '';
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-      if (!$email || !$password) {
-        $alert = '<div class="alert alert-danger">Email and password are required.</div>';
-      } else {
-        try {
-          $config = new Configue();
-          $db = new Database($config->servername, $config->database, $config->username, $config->password);
+    if (!$email || !$password) {
+      $alert = '<div class="alert alert-danger">Email and password are required.</div>';
+    } else {
+      try {
+        $user = $db->select("users", "*", ["email" => $email]);
 
-          $user = $db->select("users", "*", ["email" => $email]);
+        if (empty($user)) {
+          $alert = '<div class="alert alert-danger">No user found with this email.</div>';
+        } else {
+          $user = $user[0];
 
-          if (empty($user)) {
-            $alert = '<div class="alert alert-danger">No user found with this email.</div>';
+          if (password_verify($password, $user['password'])) {
+            $_SESSION['user'] = [
+              'id' => $user['id'],
+              'name' => $user['name'],
+              'email' => $user['email'],
+              'role' => $user['role'],
+              'shop_id' => $user['shop_id']
+            ];
+
+            header("Location: service_tab.php");
+            exit;
           } else {
-            $user = $user[0];
-
-            if (password_verify($password, $user['password'])) {
-              session_start();
-              $_SESSION['user'] = [
-                'id' => $user['id'],
-                'name' => $user['name'],
-                'email' => $user['email'],
-                'role' => $user['role'],
-                'shop_id' => $user['shop_id']
-              ];
-              header("Location: service_tab.php");
-              exit;
-            } else {
-              $alert = '<div class="alert alert-danger">Incorrect password.</div>';
-            }
+            $alert = '<div class="alert alert-danger">Incorrect password.</div>';
           }
-        } catch (Exception $e) {
-          $alert = '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
         }
+      } catch (Exception $e) {
+        $alert = '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
       }
     }
   }
 }
-
-
 
 
 

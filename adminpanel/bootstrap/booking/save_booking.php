@@ -1,4 +1,7 @@
 <?php
+
+session_start();
+
 require_once __DIR__ . '/../../database/configue.php';
 require_once __DIR__ . '/../../database/connection.php';
 
@@ -23,10 +26,13 @@ try {
         "total_duration" => $data['service']['duration'],
         "status" => "pending",
         "payment_status" => "unpaid",
+        "payment_method" => $data['payment_method'],
         "notes" => $data['service']['name'] . " with " . $data['staff']['staff_name'] . " (" . $data['service']['duration'] . " mins)",
         "created_at" => $now,
-        "service_id" => $data['service']['id']
+        "service_id" => $data['service']['id'],
+        "user_id" => $_SESSION['user']['id'], 
     ];
+
 
     $success = $db->insert("bookings", $booking);
     if ($success) {

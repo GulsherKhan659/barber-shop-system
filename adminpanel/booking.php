@@ -6,17 +6,22 @@
 $config = new Configue();
 $db = new Database($config->servername, $config->database, $config->username, $config->password);
 
-// Fetch staff users
-$staffUsers = $db->select('users', '*', ['role' => 'staff']);
+// Step 1: Fetch all staff with linked user name
+$query = "
+    SELECT s.id AS staff_id, u.name AS staff_name
+    FROM staff s
+    JOIN users u ON s.user_id = u.id and u.role = 'staff'
+";
+$staffResult = $db->selectJoin($query); // Assuming you have a generic method like runQuery()
 $staff = [];
 $staffMap = [];
 
-foreach ($staffUsers as $user) {
-    $staff[] = $user['name'];
-    $staffMap[$user['id']] = $user['name'];
+foreach ($staffResult as $row) {
+    $staff[] = $row['staff_name'];
+    $staffMap[$row['staff_id']] = $row['staff_name'];
 }
 
-// View mode
+// View mode (week or month)
 $view = isset($_GET['view']) && $_GET['view'] === 'month' ? 'month' : 'week';
 
 $start = new DateTime(isset($_GET['date']) ? $_GET['date'] : 'today');
@@ -38,28 +43,30 @@ if ($view === 'week') {
     }
 }
 
-// Fetch bookings
-$events = [];
-$bookings = $db->select("bookings", "*");
+// Step 2: Fetch bookings + user name from staff + user tables
+$bookingQuery = "
+    SELECT b.*, u.name AS staff_name
+    FROM bookings b
+    JOIN staff s ON b.staff_id = s.id
+    JOIN users u ON s.user_id = u.id
+";
+$bookings = $db->selectJoin($bookingQuery);
 
+$events = [];
 foreach ($bookings as $booking) {
     $date = $booking['appointment_date'];
-    $staffId = $booking['staff_id'];
-    $staffName = $staffMap[$staffId] ?? null;
+    $staffName = $booking['staff_name'];
 
-    if ($staffName) {
-        $time = $booking['appointment_time'];
-        $duration = $booking['total_duration'];
-        $notes = htmlspecialchars($booking['notes']);
+    $time = $booking['appointment_time'];
+    $duration = $booking['total_duration'];
+    $notes = htmlspecialchars($booking['notes']);
 
-        $eventText = "$time<br><small>{$duration} mins - $notes</small>";
+    $eventText = "$time<br><small>{$duration} mins - $notes</small>";
 
-        // If multiple bookings on same day for same staff, show all
-        if (!isset($events[$date][$staffName])) {
-            $events[$date][$staffName] = [];
-        }
-        $events[$date][$staffName][] = [$eventText, 'event-green'];
+    if (!isset($events[$date][$staffName])) {
+        $events[$date][$staffName] = [];
     }
+    $events[$date][$staffName][] = [$eventText, 'event-green'];
 }
 
 // Navigation
