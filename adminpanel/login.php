@@ -15,20 +15,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $passwordInput = $_POST['password'] ?? '';
 
     $result = $dbObject->select("users", "*", ["email" => $email]);
+    echo print_r($result);
 
     if (count($result) > 0) {
         $user = $result[0];
 
         // If passwords are hashed, use password_verify
-        if ($user['password'] === $passwordInput) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['user_name'] = $user['name'];
+        if ($user['role'] === 'shop_admin') {
+            if ($user['password'] === $passwordInput) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['user_name'] = $user['name'];
 
-            header("Location: index.php");
-            exit();
-        } else {
-            $error = "Invalid email or password.";
+                header("Location: index.php");
+                exit();
+            } else {
+                $error = "Invalid email or password.";
+            }
+        }else{
+            if (password_verify($passwordInput, $user['password'])) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['user_name'] = $user['name'];
+
+                header("Location: index.php");
+                exit();
+            } else {
+                $error = "Invalid password.";
+            }
         }
     } else {
         $error = "User not found.";

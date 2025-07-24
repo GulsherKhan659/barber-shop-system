@@ -1,29 +1,50 @@
-<?php include("./database/configue.php"); ?>
-<?php include("./database/connection.php"); ?>
-<?php include("./partial/header.php"); ?>
-
 <?php
+include("./database/configue.php");
+include("./database/connection.php");
+include("./partial/header.php");
+
 $config = new Configue();
 $db = new Database($config->servername, $config->database, $config->username, $config->password);
 
-// Step 1: Fetch all staff with linked user name
-$query = "
-    SELECT s.id AS staff_id, u.name AS staff_name
-    FROM staff s
-    JOIN users u ON s.user_id = u.id and u.role = 'staff'
-";
-$staffResult = $db->selectJoin($query); // Assuming you have a generic method like runQuery()
+// Get user role and user ID from session
+$userRole = $_SESSION['user_role'] ?? null;
+$userId = $_SESSION['user_id'] ?? null;
+
+// Initialize staff array
 $staff = [];
 $staffMap = [];
 
+// Role-based staff list fetch
+if ($userRole === 'shop_admin' || $userRole === 'admin') {
+    // Fetch all staff
+    $query = "
+        SELECT s.id AS staff_id, u.name AS staff_name
+        FROM staff s
+        JOIN users u ON s.user_id = u.id
+        WHERE u.role = 'staff'
+    ";
+    $staffResult = $db->selectJoin($query);
+} elseif ($userRole === 'staff') {
+    // Fetch only this staff's own data
+    $query = "
+        SELECT s.id AS staff_id, u.name AS staff_name
+        FROM staff s
+        JOIN users u ON s.user_id = u.id
+        WHERE u.id = :uid
+    ";
+    $staffResult = $db->selectJoin($query, ['uid' => $userId]);
+} else {
+    $staffResult = []; // No access
+}
+
+// Map staff names
 foreach ($staffResult as $row) {
     $staff[] = $row['staff_name'];
     $staffMap[$row['staff_id']] = $row['staff_name'];
 }
 
-// View mode (week or month)
+// Calendar view setup
 $view = isset($_GET['view']) && $_GET['view'] === 'month' ? 'month' : 'week';
-
 $start = new DateTime(isset($_GET['date']) ? $_GET['date'] : 'today');
 if ($view === 'month') {
     $start->modify('first day of this month');
@@ -31,49 +52,51 @@ if ($view === 'month') {
 
 $days = [];
 $ref = clone $start;
-
-if ($view === 'week') {
-    for ($i = 0; $i < 7; $i++) {
-        $days[] = (clone $ref)->modify("+$i day");
-    }
-} else {
-    $daysInMonth = (int)$ref->format('t');
-    for ($i = 0; $i < $daysInMonth; $i++) {
-        $days[] = (clone $ref)->modify("+$i day");
-    }
+$range = $view === 'week' ? 7 : (int)$ref->format('t');
+for ($i = 0; $i < $range; $i++) {
+    $days[] = (clone $ref)->modify("+$i day");
 }
 
-// Step 2: Fetch bookings + user name from staff + user tables
-$bookingQuery = "
-    SELECT b.*, u.name AS staff_name
-    FROM bookings b
-    JOIN staff s ON b.staff_id = s.id
-    JOIN users u ON s.user_id = u.id
-";
-$bookings = $db->selectJoin($bookingQuery);
+// Fetch bookings based on role
+if ($userRole === 'shop_admin' || $userRole === 'admin') {
+    $bookingQuery = "
+        SELECT b.*, u.name AS staff_name
+        FROM bookings b
+        JOIN staff s ON b.staff_id = s.id
+        JOIN users u ON s.user_id = u.id
+    ";
+    $bookings = $db->selectJoin($bookingQuery);
+} elseif ($userRole === 'staff') {
+    $bookingQuery = "
+        SELECT b.*, u.name AS staff_name
+        FROM bookings b
+        JOIN staff s ON b.staff_id = s.id
+        JOIN users u ON s.user_id = u.id
+        WHERE u.id = :uid
+    ";
+    $bookings = $db->selectJoin($bookingQuery, ['uid' => $userId]);
+} else {
+    $bookings = [];
+}
 
+// Prepare calendar events
 $events = [];
 foreach ($bookings as $booking) {
     $date = $booking['appointment_date'];
     $staffName = $booking['staff_name'];
-
     $time = $booking['appointment_time'];
     $duration = $booking['total_duration'];
     $notes = htmlspecialchars($booking['notes']);
-
     $eventText = "$time<br><small>{$duration} mins - $notes</small>";
-
-    if (!isset($events[$date][$staffName])) {
-        $events[$date][$staffName] = [];
-    }
     $events[$date][$staffName][] = [$eventText, 'event-green'];
 }
 
-// Navigation
+// Navigation links
 $current = $start->format('Y-m-d');
 $prev = (clone $start)->modify($view === 'week' ? '-7 days' : '-1 month')->format('Y-m-d');
 $next = (clone $start)->modify($view === 'week' ? '+7 days' : '+1 month')->format('Y-m-d');
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

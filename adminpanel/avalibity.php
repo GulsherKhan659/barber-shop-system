@@ -4,24 +4,49 @@ include("./partial/header.php");
 
 $db = new Database('localhost', 'barberbookingsystem', 'root', '');
 
-// Fetch staff list
-$staffList = $db->select(
-  "staff s JOIN users u ON s.user_id = u.id",
-  "s.id as staff_id, u.name as staff_name",
-  "u.role = 'staff'"
-);
+$userRole = $_SESSION['user_role'] ?? null;
+$userId = $_SESSION['user_id'] ?? null;
 
-// Fetch all available slots
-$slotsData = $db->select(
-  "staff_available_slots sas 
-     JOIN staff s ON sas.staff_id = s.id 
-     JOIN users u ON s.user_id = u.id",
-  "sas.id, sas.staff_id, u.name as staff_name, sas.date, sas.start_time, sas.end_time"
-);
+$staffList = [];
+$slotsData = [];
 
+if ($userRole === 'shop_admin' || $userRole === 'admin' || $userRole === 'super_admin') {
+    $sql = "
+        SELECT s.id AS staff_id, u.name AS staff_name
+        FROM staff s
+        JOIN users u ON s.user_id = u.id
+        WHERE u.role = 'staff'
+    ";
+    $staffList = $db->selectJoin($sql);
+} elseif ($userRole === 'staff') {
+    $sql = "
+        SELECT s.id AS staff_id, u.name AS staff_name
+        FROM staff s
+        JOIN users u ON s.user_id = u.id
+        WHERE u.id = :userId
+    ";
+    $staffList = $db->selectJoin($sql, ['userId' => $userId]);
+}
 
+if ($userRole === 'shop_admin' || $userRole === 'admin' || $userRole === 'super_admin') {
+    $sql = "
+        SELECT sas.id, sas.staff_id, u.name AS staff_name, sas.date, sas.start_time, sas.end_time
+        FROM staff_available_slots sas
+        JOIN staff s ON sas.staff_id = s.id
+        JOIN users u ON s.user_id = u.id
+    ";
+    $slotsData = $db->selectJoin($sql);
+} elseif ($userRole === 'staff') {
+    $sql = "
+        SELECT sas.id, sas.staff_id, u.name AS staff_name, sas.date, sas.start_time, sas.end_time
+        FROM staff_available_slots sas
+        JOIN staff s ON sas.staff_id = s.id
+        JOIN users u ON s.user_id = u.id
+        WHERE u.id = :userId
+    ";
+    $slotsData = $db->selectJoin($sql, ['userId' => $userId]);
+}
 
-// $staff = $db->select('users', '*', ['role' => 'staff']);
 
 ?>
 <!-- jQuery + jQuery UI (required for MultiDatesPicker) -->
