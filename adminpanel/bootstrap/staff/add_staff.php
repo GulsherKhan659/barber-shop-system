@@ -16,7 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($name && $phone && $email && $password) {
         try {
-            // Step 1: Insert into users table
+            $existingUser = $db->select('users', '*', ['email' => $email]);
+
+            if (!empty($existingUser)) {
+                header("Location: ../../staff.php?error=Email already exists");
+                exit;
+            }
+
             $userData = [
                 'shop_id'    => 1,
                 'name'       => $name,

@@ -45,7 +45,7 @@
             <li class="nav-item">
                 <a class="nav-link " href="avalibity.php" >
                     <i class="fas fa-fw fa-clock"></i>
-                    <span>Avalibity</span>
+                    <span>Availability</span>
                 </a>
             </li>
 
