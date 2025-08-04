@@ -378,7 +378,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="d-grid mb-3">
-        <button type="button" class="btn btn-google">Login with Google</button>
+        <a href="google_login.php" class="btn btn-google">Login with Google</a>
       </div>
 
       <div class="d-grid">
